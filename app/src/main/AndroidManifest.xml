@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="dv.trubnikov.babushka.babookreader">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/Theme.BabookReader">
+
+        <activity android:name=".BookActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="*/*" />
+                <!--<data android:pathPattern="/.*.fb2" />-->
+                <!--<data android:pathPattern="/.*..*.fb2" />-->
+                <!--<data android:pathPattern="/.*..*..*.fb2" />-->
+                <!--<data android:pathPattern="/.*..*..*..*.fb2" />-->
+                <!--<data android:pathPattern="/.*..*..*..*..*.fb2" />-->
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
