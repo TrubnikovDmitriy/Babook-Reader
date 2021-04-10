@@ -1,2 +1,4 @@
-include ':app'
 rootProject.name = "Babook Reader"
+
+include ':app'
+include ':fb2_parser'
