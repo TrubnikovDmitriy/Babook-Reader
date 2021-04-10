@@ -1,9 +1,12 @@
-package dv.trubnikov.babushka.babookreader
+package dv.trubnikov.babushka.babookreader.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import dagger.hilt.android.AndroidEntryPoint
+import dv.trubnikov.babushka.babookreader.R
 
+@AndroidEntryPoint
 class BookActivity : AppCompatActivity() {
 
     private val viewModel by viewModels<BookViewModel>()

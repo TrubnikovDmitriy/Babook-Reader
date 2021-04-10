@@ -1,4 +1,4 @@
-package dv.trubnikov.babushka.babookreader.utils
+package dv.trubnikov.babushka.babookreader.core
 
 import android.util.Log
 

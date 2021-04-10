@@ -1,17 +1,22 @@
-package dv.trubnikov.babushka.babookreader
+package dv.trubnikov.babushka.babookreader.presentation
 
 import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dv.trubnikov.babushka.babookreader.utils.logd
-import dv.trubnikov.babushka.babookreader.utils.loge
-import dv.trubnikov.babushka.babookreader.utils.logw
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dv.trubnikov.babushka.babookreader.domain.BookInteractor
+import dv.trubnikov.babushka.babookreader.core.logd
+import dv.trubnikov.babushka.babookreader.core.loge
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class BookViewModel() : ViewModel() {
+@HiltViewModel
+class BookViewModel @Inject constructor(
+    private val bookInteractor: BookInteractor
+) : ViewModel() {
 
     private val errorHandler = CoroutineExceptionHandler { _, err ->
         loge(err) { "Непредвиденная ошибка, обработать невозможно, глушим экран стабом" }

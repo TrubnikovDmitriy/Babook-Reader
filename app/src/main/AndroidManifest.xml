@@ -3,6 +3,7 @@
     package="dv.trubnikov.babushka.babookreader">
 
     <application
+        android:name=".BookApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -10,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.BabookReader">
 
-        <activity android:name=".BookActivity">
+        <activity android:name=".presentation.BookActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
