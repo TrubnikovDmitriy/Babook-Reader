@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.max
 
 @HiltViewModel
 class BookViewModel @Inject constructor(
@@ -26,10 +27,7 @@ class BookViewModel @Inject constructor(
     sealed class ViewState {
         object Error : ViewState()
         object Loading : ViewState()
-        data class Success(
-            val bookText: SpannableStringBuilder,
-            val lastPage: Int,
-        ) : ViewState()
+        data class Success(val bookText: SpannableStringBuilder) : ViewState()
     }
 
     private val errorHandler = CoroutineExceptionHandler { _, err ->
@@ -38,9 +36,22 @@ class BookViewModel @Inject constructor(
     }
 
     val viewStateFlow = MutableStateFlow<ViewState>(ViewState.Loading)
+    val currentPageFlow = MutableStateFlow<Int?>(null)
 
     init {
         loadBook()
+    }
+
+    fun nextPage() {
+        currentPageFlow.value?.let {
+            currentPageFlow.value = it + 1
+        }
+    }
+
+    fun prevPage() {
+        currentPageFlow.value?.let {
+            currentPageFlow.value = max(0, it - 1)
+        }
     }
 
     private fun loadBook() {
@@ -53,9 +64,14 @@ class BookViewModel @Inject constructor(
     fun handleUri(intent: Intent, context: Context) {
         val uri = intent.data
         if (uri == null || intent.action != Intent.ACTION_VIEW) {
+            if (intent.action == Intent.ACTION_VIEW) {
+                viewStateFlow.value = ViewState.Error
+            }
             logd { "Не наш случай: action=[${intent.action}], uri=[$uri]" }
             return
         }
+
+        viewStateFlow.value = ViewState.Loading
 
         viewModelScope.launch(errorHandler) {
             val uriInputStream = context.contentResolver.openInputStream(uri)
@@ -80,10 +96,11 @@ class BookViewModel @Inject constructor(
                 appendLine()
             }
             section.elements.forEach { line ->
-                builder.appendLine("\t\t\t\t\t${line.text}")
+                builder.appendLine("\t\t${line.text}")
             }
         }
-        viewStateFlow.value = ViewState.Success(builder, 0)
+        viewStateFlow.value = ViewState.Success(builder)
+        currentPageFlow.value = 0
     }
 
     private fun <T> Out<T>.handleSuccess(handler: (T) -> Unit) {

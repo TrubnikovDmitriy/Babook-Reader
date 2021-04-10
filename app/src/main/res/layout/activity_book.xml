@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.BookActivity">
+
+    <include
+        android:id="@+id/book_state_success"
+        layout="@layout/layout_book_success"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+    <include
+        android:id="@+id/book_state_loading"
+        layout="@layout/layout_book_loading"
+        android:visibility="visible"
+        tools:visibility="gone"
+        />
+
+    <include
+        android:id="@+id/book_state_error"
+        layout="@layout/layout_book_error"
+        android:visibility="gone"
+        tools:visibility="gone"
+        />
+
+</FrameLayout>
