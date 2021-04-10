@@ -1,8 +1,8 @@
 package dv.trubnikov.babushka.babookreader.presentation
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dv.trubnikov.babushka.babookreader.R
 

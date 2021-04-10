@@ -9,9 +9,9 @@ interface BookStorage {
      * Save copy of stream to internal storage
      * (sic. it overwrites previous data)
      *
-     * @return true in success case, false in otherwise
+     * @return file with saved book or null if something went wrong
      */
-    suspend fun saveBook(inputStream: InputStream): Boolean
+    suspend fun saveBook(inputStream: InputStream): File?
 
     /**
      * Return file with last saved book.

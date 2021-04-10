@@ -2,8 +2,8 @@ package dv.trubnikov.babushka.babookreader.data
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dv.trubnikov.babushka.babookreader.domain.BookStorage
 import dv.trubnikov.babushka.babookreader.core.loge
+import dv.trubnikov.babushka.babookreader.domain.BookStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -23,22 +23,20 @@ class BookStorageImpl @Inject constructor(
      * 1. Я не нашел корутиновских либ для работы с файлами
      * 2. Это IO-диспатчер, для него блокаться не так критично
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
-    override suspend fun saveBook(inputStream: InputStream): Boolean {
+    override suspend fun saveBook(inputStream: InputStream): File? {
         return withContext(Dispatchers.IO) {
             try {
                 context.openFileOutput(BOOK_NAME, Context.MODE_PRIVATE).use {
                     it.write(inputStream.readBytes())
                 }
-                true
+                loadSavedBook()
             } catch (e: IOException) {
                 loge(e) { "Не удалось сохранить книжку в интернал сторадж" }
-                false
+                null
             }
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun loadSavedBook(): File? {
         return withContext(Dispatchers.IO) {
             File(context.filesDir, BOOK_NAME).takeIf { it.isFile }
