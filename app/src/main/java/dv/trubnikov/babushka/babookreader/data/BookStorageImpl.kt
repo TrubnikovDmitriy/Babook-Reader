@@ -3,7 +3,7 @@ package dv.trubnikov.babushka.babookreader.data
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dv.trubnikov.babushka.babookreader.core.loge
-import dv.trubnikov.babushka.babookreader.domain.BookStorage
+import dv.trubnikov.babushka.babookreader.domain.boundaries.BookStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

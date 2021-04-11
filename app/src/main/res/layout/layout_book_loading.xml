@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="15dp"
-        android:text="Бабуля, пожалуйста, подожди.\nКнижка открывается."
+        android:text="Бабуля, пожалуйста, подожди\nКнижка открывается"
         android:textColor="@color/black"
         android:textSize="25sp"
         tools:ignore="HardcodedText" />

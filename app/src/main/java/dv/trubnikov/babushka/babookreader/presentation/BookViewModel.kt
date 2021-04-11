@@ -13,6 +13,7 @@ import dv.trubnikov.babushka.babookreader.core.Out
 import dv.trubnikov.babushka.babookreader.core.logd
 import dv.trubnikov.babushka.babookreader.core.loge
 import dv.trubnikov.babushka.babookreader.domain.BookInteractor
+import dv.trubnikov.babushka.babookreader.presentation.BookViewModel.ViewState.*
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -27,15 +28,18 @@ class BookViewModel @Inject constructor(
     sealed class ViewState {
         object Error : ViewState()
         object Loading : ViewState()
-        data class Success(val bookText: SpannableStringBuilder) : ViewState()
+        data class Success(
+            val book: FictionBook,
+            val bookText: SpannableStringBuilder,
+        ) : ViewState()
     }
 
     private val errorHandler = CoroutineExceptionHandler { _, err ->
         loge(err) { "Непредвиденная ошибка, обработать невозможно, глушим экран стабом" }
-        viewStateFlow.value = ViewState.Error
+        viewStateFlow.value = Error
     }
 
-    val viewStateFlow = MutableStateFlow<ViewState>(ViewState.Loading)
+    val viewStateFlow = MutableStateFlow<ViewState>(Loading)
     val currentPageFlow = MutableStateFlow<Int?>(null)
 
     init {
@@ -43,21 +47,34 @@ class BookViewModel @Inject constructor(
     }
 
     fun nextPage() {
-        currentPageFlow.value?.let {
-            currentPageFlow.value = it + 1
+        val state = viewStateFlow.value as? Success ?: return
+        val page = currentPageFlow.value ?: return
+        val nextPage = page + 1
+
+        currentPageFlow.value = nextPage
+        viewModelScope.launch {
+            bookInteractor.saveBookmark(state.book, nextPage)
         }
     }
 
     fun prevPage() {
-        currentPageFlow.value?.let {
-            currentPageFlow.value = max(0, it - 1)
+        val state = viewStateFlow.value as? Success ?: return
+        val page = currentPageFlow.value ?: return
+        val prevPage = max(0, page - 1)
+
+        currentPageFlow.value = prevPage
+        viewModelScope.launch {
+            bookInteractor.saveBookmark(state.book, prevPage)
         }
     }
 
     private fun loadBook() {
         viewModelScope.launch(errorHandler) {
             val book = bookInteractor.loadLastBook()
-            book.handleSuccess { buildBookText(it) }
+            book.handleSuccess {
+                buildBookText(it.fb2)
+                currentPageFlow.value = it.page
+            }
         }
     }
 
@@ -65,23 +82,25 @@ class BookViewModel @Inject constructor(
         val uri = intent.data
         if (uri == null || intent.action != Intent.ACTION_VIEW) {
             if (intent.action == Intent.ACTION_VIEW) {
-                viewStateFlow.value = ViewState.Error
+                viewStateFlow.value = Error
             }
             logd { "Не наш случай: action=[${intent.action}], uri=[$uri]" }
             return
         }
 
-        viewStateFlow.value = ViewState.Loading
+        viewStateFlow.value = Loading
 
         viewModelScope.launch(errorHandler) {
             val uriInputStream = context.contentResolver.openInputStream(uri)
             if (uriInputStream == null) {
-                viewStateFlow.value = ViewState.Error
+                viewStateFlow.value = Error
                 return@launch
             }
 
-            val book = bookInteractor.saveNewBook(uriInputStream)
-            book.handleSuccess { buildBookText(it) }
+            bookInteractor.saveNewBook(uriInputStream).handleSuccess {
+                buildBookText(it.fb2)
+                currentPageFlow.value = it.page
+            }
         }
     }
 
@@ -99,14 +118,13 @@ class BookViewModel @Inject constructor(
                 builder.appendLine("\t\t${line.text}")
             }
         }
-        viewStateFlow.value = ViewState.Success(builder)
-        currentPageFlow.value = 0
+        viewStateFlow.value = Success(book, builder)
     }
 
     private fun <T> Out<T>.handleSuccess(handler: (T) -> Unit) {
         when (this) {
             is Out.Success -> handler(value)
-            is Out.Failure -> viewStateFlow.value = ViewState.Error
+            is Out.Failure -> viewStateFlow.value = Error
         }
     }
 }

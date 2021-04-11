@@ -1,4 +1,4 @@
-package dv.trubnikov.babushka.babookreader.domain
+package dv.trubnikov.babushka.babookreader.domain.boundaries
 
 import java.io.File
 import java.io.InputStream
@@ -7,7 +7,7 @@ interface BookStorage {
 
     /**
      * Save copy of stream to internal storage
-     * (sic. it overwrites previous data)
+     * (sic. it overwrites previous book)
      *
      * @return file with saved book or null if something went wrong
      */

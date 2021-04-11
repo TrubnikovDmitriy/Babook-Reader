@@ -5,7 +5,9 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dv.trubnikov.babushka.babookreader.data.BookStorageImpl
-import dv.trubnikov.babushka.babookreader.domain.BookStorage
+import dv.trubnikov.babushka.babookreader.data.BookmarkPreferences
+import dv.trubnikov.babushka.babookreader.domain.boundaries.BookStorage
+import dv.trubnikov.babushka.babookreader.domain.boundaries.BookmarkStorage
 import javax.inject.Singleton
 
 @Module
@@ -15,4 +17,7 @@ interface DiDataModule {
     @Binds
     @Singleton
     fun bindBookStorage(impl: BookStorageImpl): BookStorage
+
+    @Binds
+    fun bindBookmarkStorage(impl: BookmarkPreferences): BookmarkStorage
 }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:padding="16dp"
-    android:text="Бабуля, книжку не удалось открыть.\nПозвони мне, разберемся\n\n+7 905 532 88 52"
+    android:text="Бабуля, книжку не удалось открыть\n\nПозвони мне, я помогу\n\n+7 905 532 88 52"
     android:textColor="@color/black"
     android:textSize="30sp"
     tools:context=".presentation.BookActivity"
