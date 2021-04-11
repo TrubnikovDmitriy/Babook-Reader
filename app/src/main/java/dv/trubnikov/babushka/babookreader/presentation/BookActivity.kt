@@ -1,6 +1,9 @@
 package dv.trubnikov.babushka.babookreader.presentation
 
 import android.os.Bundle
+import android.view.View
+import android.view.animation.Animation
+import android.view.animation.TranslateAnimation
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -8,15 +11,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.addRepeatingJob
 import dagger.hilt.android.AndroidEntryPoint
 import dv.trubnikov.babushka.babookreader.R
-import dv.trubnikov.babushka.babookreader.core.logd
 import dv.trubnikov.babushka.babookreader.databinding.ActivityBookBinding
 import dv.trubnikov.babushka.babookreader.presentation.BookViewModel.ViewState.Error
 import dv.trubnikov.babushka.babookreader.presentation.BookViewModel.ViewState.Loading
 import dv.trubnikov.babushka.babookreader.presentation.BookViewModel.ViewState.Success
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 
 @AndroidEntryPoint
@@ -50,8 +50,22 @@ class BookActivity : AppCompatActivity() {
     }
 
     private fun setupButtonListeners(binding: ActivityBookBinding) {
-        binding.bookStateSuccess.bookLeftButton.setOnClickListener { viewModel.prevPage() }
-        binding.bookStateSuccess.bookRightButton.setOnClickListener { viewModel.nextPage() }
+        binding.bookStateSuccess.bookLeftButton.setOnClickListener {
+            binding.bookStateSuccess.bookPageText.let {
+                it.startPageAnimation(0f, it.width.toFloat()) {
+                    viewModel.prevPage()
+                    it.startPageAnimation(-it.width.toFloat(), 0f) {}
+                }
+            }
+        }
+        binding.bookStateSuccess.bookRightButton.setOnClickListener {
+            binding.bookStateSuccess.bookPageText.let {
+                it.startPageAnimation(0f, -it.width.toFloat()) {
+                    viewModel.nextPage()
+                    it.startPageAnimation(+it.width.toFloat(), 0f) {}
+                }
+            }
+        }
     }
 
     private fun handleState(binding: ActivityBookBinding, state: BookViewModel.ViewState) {
@@ -72,5 +86,19 @@ class BookActivity : AppCompatActivity() {
         val pagination = getString(R.string.book_pagination, currentPage + 1, totalPageCount)
         binding.bookStateSuccess.bookPageNumber.text = pagination
         binding.bookStateSuccess.bookPageText.next(currentPage)
+    }
+
+    private fun View.startPageAnimation(fromXDelta: Float, toXDelta: Float, onAnimationEnd: () -> Unit) {
+        TranslateAnimation(fromXDelta, toXDelta, 0f, 0f).apply {
+            duration = 750
+            this.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationRepeat(animation: Animation) {}
+                override fun onAnimationStart(animation: Animation) {}
+                override fun onAnimationEnd(animation: Animation) {
+                    onAnimationEnd()
+                }
+            })
+            startAnimation(this)
+        }
     }
 }
