@@ -2,6 +2,7 @@ package dv.trubnikov.babushka.babookreader.presentation
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.text.SpannableStringBuilder
 import androidx.core.text.bold
 import androidx.core.text.scale
@@ -42,10 +43,6 @@ class BookViewModel @Inject constructor(
     val viewStateFlow = MutableStateFlow<ViewState>(Loading)
     val currentPageFlow = MutableStateFlow<Int?>(null)
 
-    init {
-        loadBook()
-    }
-
     fun nextPage() {
         val state = viewStateFlow.value as? Success ?: return
         val page = currentPageFlow.value ?: return
@@ -68,29 +65,39 @@ class BookViewModel @Inject constructor(
         }
     }
 
-    private fun loadBook() {
+    fun handleUri(intent: Intent, context: Context) {
+        if (intent.action != Intent.ACTION_VIEW) {
+            logd { "Показываем последнюю сохраненную книжку" }
+            loadLastBook()
+            return
+        }
+
+        val uri = intent.data
+        if (uri == null) {
+            logd { "Action=[${intent.action}], но uri=[$uri]" }
+            viewStateFlow.value = Error
+            return
+        }
+
+        logd { "Пытаемся загрузить новую книжку по указанному uri=[$uri]" }
+        loadNewBook(context, uri)
+    }
+
+    private fun loadLastBook() {
         viewModelScope.launch(errorHandler) {
-            val book = bookInteractor.loadLastBook()
-            book.handleSuccess {
+            viewStateFlow.value = Loading
+
+            bookInteractor.loadLastBook().handleSuccess {
                 buildBookText(it.fb2)
                 currentPageFlow.value = it.page
             }
         }
     }
 
-    fun handleUri(intent: Intent, context: Context) {
-        val uri = intent.data
-        if (uri == null || intent.action != Intent.ACTION_VIEW) {
-            if (intent.action == Intent.ACTION_VIEW) {
-                viewStateFlow.value = Error
-            }
-            logd { "Не наш случай: action=[${intent.action}], uri=[$uri]" }
-            return
-        }
-
-        viewStateFlow.value = Loading
-
+    private fun loadNewBook(context: Context, uri: Uri) {
         viewModelScope.launch(errorHandler) {
+            viewStateFlow.value = Loading
+
             val uriInputStream = context.contentResolver.openInputStream(uri)
             if (uriInputStream == null) {
                 viewStateFlow.value = Error
@@ -124,7 +131,9 @@ class BookViewModel @Inject constructor(
     private fun <T> Out<T>.handleSuccess(handler: (T) -> Unit) {
         when (this) {
             is Out.Success -> handler(value)
-            is Out.Failure -> viewStateFlow.value = Error
+            is Out.Failure -> {
+                viewStateFlow.value = Error
+            }
         }
     }
 }
