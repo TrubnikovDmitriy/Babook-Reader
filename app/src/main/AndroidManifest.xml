@@ -25,11 +25,11 @@
                 <data android:scheme="file" />
                 <data android:scheme="content" />
                 <data android:mimeType="*/*" />
-                <!--<data android:pathPattern="/.*.fb2" />-->
-                <!--<data android:pathPattern="/.*..*.fb2" />-->
-                <!--<data android:pathPattern="/.*..*..*.fb2" />-->
-                <!--<data android:pathPattern="/.*..*..*..*.fb2" />-->
-                <!--<data android:pathPattern="/.*..*..*..*..*.fb2" />-->
+                <data android:pathPattern="/.*.fb2" />
+                <data android:pathPattern="/.*..*.fb2" />
+                <data android:pathPattern="/.*..*..*.fb2" />
+                <data android:pathPattern="/.*..*..*..*.fb2" />
+                <data android:pathPattern="/.*..*..*..*..*.fb2" />
             </intent-filter>
         </activity>
     </application>
