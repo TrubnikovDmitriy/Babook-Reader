@@ -50,5 +50,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     // Modules
+    implementation project(":analytics")
     implementation project(":fb2_parser")
 }

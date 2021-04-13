@@ -20,12 +20,14 @@ import javax.xml.parsers.ParserConfigurationException
 class BookInteractor @Inject constructor(
     private val bookStorage: BookStorage,
     private val bookmarkStorage: BookmarkStorage,
+    private val bookAnalytics: BookAnalyticsEvents,
 ) {
 
     suspend fun saveNewBook(inputStream: InputStream): Out<Book> {
         val bookFile = bookStorage.saveBook(inputStream)
         val fictionBook = createFictionBook(bookFile).getOr { return it }
         val page = bookmarkStorage.getPageFor(fictionBook.title)
+        bookAnalytics.openNewBook(fictionBook.title)
         return Out.Success(Book(fictionBook, page))
     }
 
@@ -33,10 +35,12 @@ class BookInteractor @Inject constructor(
         val bookFile = bookStorage.loadSavedBook()
         val fictionBook = createFictionBook(bookFile).getOr { return it }
         val page = bookmarkStorage.getPageFor(fictionBook.title)
+        bookAnalytics.loadBook(fictionBook.title)
         return Out.Success(Book(fictionBook, page))
     }
 
     suspend fun saveBookmark(book: FictionBook, page: Int) {
+        bookAnalytics.changePage(book.title, page)
         bookmarkStorage.setPageFor(book.title, page)
     }
 

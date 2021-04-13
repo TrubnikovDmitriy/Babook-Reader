@@ -18,6 +18,7 @@ import dv.trubnikov.babushka.babookreader.presentation.BookViewModel.ViewState.S
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.lang.IllegalStateException
 
 @AndroidEntryPoint
 class BookActivity : AppCompatActivity() {
