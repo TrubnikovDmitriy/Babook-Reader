@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kursx.parser.fb2.FictionBook
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dv.trubnikov.babushka.babook.analytics.api.AnalyticsReporter
 import dv.trubnikov.babushka.babookreader.core.Out
 import dv.trubnikov.babushka.babookreader.core.logd
 import dv.trubnikov.babushka.babookreader.core.loge
@@ -23,7 +24,8 @@ import kotlin.math.max
 
 @HiltViewModel
 class BookViewModel @Inject constructor(
-    private val bookInteractor: BookInteractor
+    private val bookInteractor: BookInteractor,
+    private val analytics: AnalyticsReporter,
 ) : ViewModel() {
 
     sealed class ViewState {
@@ -37,6 +39,7 @@ class BookViewModel @Inject constructor(
 
     private val errorHandler = CoroutineExceptionHandler { _, err ->
         loge(err) { "Непредвиденная ошибка, обработать невозможно, глушим экран стабом" }
+        analytics.sendError("[Unexpected] Вьюмодель книги", err)
         viewStateFlow.value = Error
     }
 
@@ -132,6 +135,7 @@ class BookViewModel @Inject constructor(
         when (this) {
             is Out.Success -> handler(value)
             is Out.Failure -> {
+                analytics.sendError("Вьюмодель книги", error)
                 viewStateFlow.value = Error
             }
         }
