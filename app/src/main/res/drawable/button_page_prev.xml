@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle" >
+    <corners android:radius="@dimen/book_page_button_corner_radius" />
+    <solid android:color="#59FF0000" />
+</shape>

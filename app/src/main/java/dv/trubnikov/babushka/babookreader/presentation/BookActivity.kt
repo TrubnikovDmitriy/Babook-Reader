@@ -18,7 +18,6 @@ import dv.trubnikov.babushka.babookreader.presentation.BookViewModel.ViewState.S
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.lang.IllegalStateException
 
 @AndroidEntryPoint
 class BookActivity : AppCompatActivity() {
@@ -51,19 +50,29 @@ class BookActivity : AppCompatActivity() {
     }
 
     private fun setupButtonListeners(binding: ActivityBookBinding) {
+        var isPageAnimating = false
+
         binding.bookStateSuccess.bookLeftButton.setOnClickListener {
             binding.bookStateSuccess.bookPageText.let {
+                if (isPageAnimating) return@let
+                isPageAnimating = true
                 it.startPageAnimation(0f, it.width.toFloat()) {
                     viewModel.prevPage()
-                    it.startPageAnimation(-it.width.toFloat(), 0f) {}
+                    it.startPageAnimation(-it.width.toFloat(), 0f) {
+                        isPageAnimating = false
+                    }
                 }
             }
         }
         binding.bookStateSuccess.bookRightButton.setOnClickListener {
             binding.bookStateSuccess.bookPageText.let {
+                if (isPageAnimating) return@let
+                isPageAnimating = true
                 it.startPageAnimation(0f, -it.width.toFloat()) {
                     viewModel.nextPage()
-                    it.startPageAnimation(+it.width.toFloat(), 0f) {}
+                    it.startPageAnimation(+it.width.toFloat(), 0f) {
+                        isPageAnimating = false
+                    }
                 }
             }
         }
