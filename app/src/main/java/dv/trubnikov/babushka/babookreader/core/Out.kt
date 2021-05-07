@@ -11,3 +11,9 @@ inline fun <T> Out<T>.getOr(handler: (Out.Failure) -> T): T {
         is Out.Success -> value
     }
 }
+
+inline fun <T> Out<T>.onSuccess(handler: (T) -> Unit) {
+    if (this is Out.Success) {
+        handler(value)
+    }
+}

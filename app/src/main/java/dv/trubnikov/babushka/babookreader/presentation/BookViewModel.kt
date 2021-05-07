@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kursx.parser.fb2.FictionBook
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dv.trubnikov.babushka.babook.analytics.api.AnalyticsReporter
 import dv.trubnikov.babushka.babookreader.R
 import dv.trubnikov.babushka.babookreader.core.Out
