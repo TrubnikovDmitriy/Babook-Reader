@@ -18,6 +18,7 @@ import dv.trubnikov.babushka.babookreader.presentation.BookViewModel.ViewState.S
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlin.math.min
 
 @AndroidEntryPoint
 class BookActivity : AppCompatActivity() {
@@ -53,6 +54,9 @@ class BookActivity : AppCompatActivity() {
         var isPageAnimating = false
 
         binding.bookStateSuccess.bookLeftButton.setOnClickListener {
+            if (viewModel.currentPageFlow.value == 0) {
+                return@setOnClickListener
+            }
             binding.bookStateSuccess.bookPageText.let {
                 if (isPageAnimating) return@let
                 isPageAnimating = true
@@ -65,6 +69,11 @@ class BookActivity : AppCompatActivity() {
             }
         }
         binding.bookStateSuccess.bookRightButton.setOnClickListener {
+            val lastPage = binding.bookStateSuccess.bookPageText.size()
+            val currentPage = viewModel.currentPageFlow.value ?: lastPage
+            if (currentPage + 1 >= lastPage) {
+                return@setOnClickListener
+            }
             binding.bookStateSuccess.bookPageText.let {
                 if (isPageAnimating) return@let
                 isPageAnimating = true
@@ -93,7 +102,8 @@ class BookActivity : AppCompatActivity() {
 
     private fun changePage(binding: ActivityBookBinding, currentPage: Int) {
         val totalPageCount = binding.bookStateSuccess.bookPageText.size()
-        val pagination = getString(R.string.book_pagination, currentPage + 1, totalPageCount)
+        val page = min(currentPage + 1, totalPageCount)
+        val pagination = getString(R.string.book_pagination, page, totalPageCount)
         binding.bookStateSuccess.bookPageNumber.text = pagination
         binding.bookStateSuccess.bookPageText.next(currentPage)
     }

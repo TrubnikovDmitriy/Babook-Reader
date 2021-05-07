@@ -10,7 +10,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kursx.parser.fb2.FictionBook
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dv.trubnikov.babushka.babook.analytics.api.AnalyticsReporter
+import dv.trubnikov.babushka.babookreader.R
 import dv.trubnikov.babushka.babookreader.core.Out
 import dv.trubnikov.babushka.babookreader.core.logd
 import dv.trubnikov.babushka.babookreader.core.loge
@@ -71,7 +73,7 @@ class BookViewModel @Inject constructor(
     fun handleUri(intent: Intent, context: Context) {
         if (intent.action != Intent.ACTION_VIEW) {
             logd { "Показываем последнюю сохраненную книжку" }
-            loadLastBook()
+            loadLastBook(context)
             return
         }
 
@@ -86,12 +88,12 @@ class BookViewModel @Inject constructor(
         loadNewBook(context, uri)
     }
 
-    private fun loadLastBook() {
+    private fun loadLastBook(context: Context) {
         viewModelScope.launch(errorHandler) {
             viewStateFlow.value = Loading
 
             bookInteractor.loadLastBook().handleSuccess {
-                buildBookText(it.fb2)
+                buildBookText(it.fb2, context)
                 currentPageFlow.value = it.page
             }
         }
@@ -108,13 +110,13 @@ class BookViewModel @Inject constructor(
             }
 
             bookInteractor.saveNewBook(uriInputStream).handleSuccess {
-                buildBookText(it.fb2)
+                buildBookText(it.fb2, context)
                 currentPageFlow.value = it.page
             }
         }
     }
 
-    private fun buildBookText(book: FictionBook) {
+    private fun buildBookText(book: FictionBook, context: Context) {
         val builder = SpannableStringBuilder()
         builder.scale(1.5f) {
             bold { appendLine(book.title); appendLine(); }
@@ -126,6 +128,14 @@ class BookViewModel @Inject constructor(
             }
             section.elements.forEach { line ->
                 builder.appendLine("\t\t${line.text}")
+            }
+        }
+        builder.scale(2f) {
+            bold {
+                appendLine()
+                appendLine()
+                appendLine()
+                appendLine(context.getString(R.string.book_end))
             }
         }
         viewStateFlow.value = Success(book, builder)
