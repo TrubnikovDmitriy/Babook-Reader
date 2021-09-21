@@ -9,6 +9,7 @@ import androidx.core.text.scale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kursx.parser.fb2.FictionBook
+import com.kursx.parser.fb2.Section
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dv.trubnikov.babushka.babook.analytics.api.AnalyticsReporter
 import dv.trubnikov.babushka.babookreader.R
@@ -121,13 +122,7 @@ class BookViewModel @Inject constructor(
             bold { appendLine(book.title); appendLine(); }
         }
         book.body?.sections?.forEach { section ->
-            builder.bold {
-                appendLine(section.getTitleString("", ""))
-                appendLine()
-            }
-            section.elements.forEach { line ->
-                builder.appendLine("\t\t${line.text}")
-            }
+            builder.appendSection(section)
         }
         builder.scale(2f) {
             bold {
@@ -138,6 +133,20 @@ class BookViewModel @Inject constructor(
             }
         }
         viewStateFlow.value = Success(book, builder)
+    }
+
+    private fun SpannableStringBuilder.appendSection(section: Section) {
+        appendLine()
+        bold {
+            appendLine(section.getTitleString("\n", "\n"))
+            appendLine()
+        }
+        section.elements.forEach { line ->
+            appendLine("\t\t${line.text}")
+        }
+        section.sections.forEach { innerSection ->
+            appendSection(innerSection)
+        }
     }
 
     private fun <T> Out<T>.handleSuccess(handler: (T) -> Unit) {
